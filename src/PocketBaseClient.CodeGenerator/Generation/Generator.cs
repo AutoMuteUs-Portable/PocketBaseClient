@@ -101,7 +101,7 @@ namespace PocketBaseClient.CodeGenerator.Generation
         /// <returns></returns>
         private GeneratedCodeFile GetCodeFileForApplication(Settings settings)
         {
-            string appClassName = (settings.ApplicationName ?? "MyPocketBase").ToPascalCase() + "Application";
+            string appClassName = "PocketBaseClientApplication";
             string serviceClassName = (settings.ApplicationName ?? "MyPocketBase").ToPascalCase() + "DataService";
             string fileName = Path.Combine(settings.BasePath, appClassName + ".cs");
 
@@ -111,14 +111,18 @@ using {settings.NamespaceServices};
 
 namespace {settings.BaseNamespace}
 {{
-    public partial class {appClassName} : PocketBaseClientApplication
+    public partial class {appClassName} : global::PocketBaseClient.PocketBaseClientApplicationPocketBaseClientApplication
     {{
         private {serviceClassName}? _Data = null;
         /// <summary> Access to Data for Application {settings.ApplicationName} </summary>
         public {serviceClassName} Data => _Data ??= new {serviceClassName}(this);
 
         #region Constructors
+#if DEBUG
+        public {appClassName}() : this(Environment.GetEnvironmentVariable(""POCKETBASE_APPLICATION_URL"") ?? ""http://localhost:8090"") {{ }}
+#else
         public {appClassName}() : this(""{settings.ApplicationUrl}"") {{ }}
+#endif
         public {appClassName}(string url, string appName = ""{settings.ApplicationName}"") : base(url, appName) {{ }}
         #endregion Constructors
     }}
